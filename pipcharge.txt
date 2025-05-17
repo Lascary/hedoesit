@@ -1,0 +1,6 @@
+pip install pyautogui opencv-python mss numpy
+
+pyautogui = simulateur souris/clavier
+opencv-python = traitement d'image (si on veut faire des détections plus fines)
+mss = capture d’écran rapide (mieux que pyautogui.screenshot() si tu veux 30 FPS)
+numpy = utile pour manipuler les images
