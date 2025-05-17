@@ -1,0 +1,7 @@
+mss
+numpy
+cv2
+pygetwindow
+win32con
+win32gui
+pyautogui

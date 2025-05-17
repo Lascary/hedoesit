@@ -1,12 +1,6 @@
 import time
 import pyautogui
 
-# "type": shape_name,
-# "position": (cx, cy),
-# "draw": [
-#     ("circle", (cx, cy), 5, (255, 0, 255), -1),  # magenta cercle
-#     # ("circle", (cx, cy), 2, (0, 0, 0), -1),     # petit point noir
-# ]
 
 CAPTURE_TOP = 114
 CAPTURE_LEFT = 685
@@ -22,7 +16,7 @@ last_move_key_time = 0
 def aim_at_target(target):
     global last_move_mouse_time
     now = time.time()
-    if now - last_move_mouse_time > 0.25:  # 0.2 = limite les moves à 5 fois/seconde max
+    if now - last_move_mouse_time > 0.2:  # 0.2 = limite les moves à 5 fois/seconde max
         if "position" in target:
             x, y = target["position"]
             screen_x = CAPTURE_LEFT + x
@@ -47,7 +41,7 @@ def distance(p1, p2):
 
 
 # déplacements
-def move_towards_target(target_position, threshold=20):
+def move_towards_target(target_position, threshold=30):
     global last_move_key_time, current_key_down
 
     if time.time() - last_move_key_time < 0.2:
@@ -74,6 +68,9 @@ def move_towards_target(target_position, threshold=20):
         keys_to_press.add('d' if dx > 0 else 'q')
     if abs(dy) > threshold:  # Se déplacer verticalement si écart significatif
         keys_to_press.add('s' if dy > 0 else 'z')
+
+    if keys_to_press == current_key_down:
+        return  # Rien à changer, ne fait rien
 
     # Relâcher les touches non désirées
     if current_key_down is None:
@@ -112,7 +109,7 @@ def farm(farm_targets, auto_fire_on):
             aim_at_target(best_target)
             # Déplacement clavier seulement s'il n'y a aucune cible dans un rayon de 100 px du centre
             # Stopper le déplacement si des shapes sont proches (≤ 200 px)
-            close_targets = [t for t in farm_targets if distance(t["position"], (center_x, center_y)) < 100]
+            close_targets = [t for t in farm_targets if distance(t["position"], (center_x, center_y)) < 150]
             if close_targets:
                 if current_key_down is not None:
                     for key in current_key_down:
