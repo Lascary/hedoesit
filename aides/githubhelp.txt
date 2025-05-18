@@ -37,7 +37,11 @@ git checkout minimap_reco_and_display
 
 Fusionner si la nouvelle version te plaît
 git checkout main
+puis
 git merge minimap_reco_and_display
 
 Supprimer une branche devenue inutile
-git branch -d version_test1
+git branch -d branche2
+
+aussi sur github:
+git push origin --delete minimap_reco_and_display
