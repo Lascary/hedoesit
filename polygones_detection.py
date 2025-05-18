@@ -25,8 +25,8 @@ def passive_polygons_detector(capture):
                 "type": shape_name,
                 "position": (cx, cy),
                 "draw": [
-                    ("circle", (cx, cy), 5, (255, 0, 255), -1),  # magenta cercle
-                    # ("circle", (cx, cy), 2, (0, 0, 0), -1),     # petit point noir
+                    ("circle", (cx, cy), 5, (255, 0, 255), 1),  # magenta cercle
+                    ("circle", (cx, cy), 1, (0, 0, 0), -1),     # petit point noir
                 ]
             })
 

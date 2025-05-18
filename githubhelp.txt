@@ -1,0 +1,36 @@
+Travailler sur votre projet :
+        Faites vos modifications dans VS Code.
+
+
+Ajouter et commiter les modifications :
+        Utilisez
+git add .
+= toutes les modifs
+
+git add mon_fichier.txt
+= que ce fichier
+
+git add *.html
+= Tous les fichiers de ce type
+
+
+pour ajouter les modifications à l'index = stocké localement
+
+
+        Utilisez
+git commit -m "Description des modifications"
+
+pour commiter les modifications.
+
+
+Pousser les modifications vers GitHub :
+        Utilisez 
+git push origin main
+
+pour envoyer les nouvelles modifications vers GitHub.
+
+
+Si modifications faites sur github et à importer dans vsc:
+dans terminal vsc =
+git pull origin main
+

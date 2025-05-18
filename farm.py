@@ -93,12 +93,12 @@ def farm(farm_targets, auto_fire_on):
 
     should_farm = bool(farm_targets)
     if should_farm:
-        # tri
+        # tri des cibles par priorité 
         farm_targets.sort(key=sort_key)
         top_targets = farm_targets[:5]
         positions = [item["position"] for item in top_targets]
 
-        # Vérifie si les 5 positions ont peu bougé (≤10 pixels)
+        # Vérifie si les 5 cibles prioritaires ont peu bougé (≤10 pixels)
         positions_stable = (
             len(last_target_positions) == 10 and
             all(distance(p1, p2) <= 10 for p1, p2 in zip(positions, last_target_positions))
@@ -107,14 +107,16 @@ def farm(farm_targets, auto_fire_on):
         if not positions_stable:
             best_target = top_targets[0]
             aim_at_target(best_target)
-            # Déplacement clavier seulement s'il n'y a aucune cible dans un rayon de 100 px du centre
-            # Stopper le déplacement si des shapes sont proches (≤ 200 px)
+            
+            # Stopper le déplacement si des shapes sont proches (≤ 150 px)
             close_targets = [t for t in farm_targets if distance(t["position"], (center_x, center_y)) < 150]
             if close_targets:
                 if current_key_down is not None:
                     for key in current_key_down:
                         pyautogui.keyUp(key)
                     current_key_down = None
+
+            # Déplacement clavier seulement s'il n'y a aucune cible dans un rayon de 150 px du centre
             else:
                 move_towards_target(best_target["position"])
 

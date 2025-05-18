@@ -1,12 +1,7 @@
 import mss
 import numpy as np
-import cv2
 import pygetwindow as gw
-import win32con
-import win32gui
 import time
-# from image_processing1 import detect_player_with_appendix_and_aim, detect_passive_shapes, detect_my_bullets
-# detect_bullets, get_player_position_center
 
 
 # Trouve la fenêtre Firefox
