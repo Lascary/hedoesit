@@ -1,0 +1,22 @@
+comment ajouter une nouvelle détection sur la capture et l'afficher sur la frame:
+1- Créer nvelle fn et? nv module
+    def nvelle fn de deétection(capture):
+
+        detections.append({
+                "type": shape_name,
+                "position": (cx, cy),
+                "draw": [
+                    ("circle", (cx, cy), 5, (255, 0, 255), 1),  # magenta cercle
+                    ("circle", (cx, cy), 1, (0, 0, 0), -1),     # petit point noir
+                ]
+            })
+
+        return detections
+
+
+
+2- module main
+    import nv module? nvelle fn de détection
+    def capture_analysis: ajouter
+        all_draw_instructions += nvlle fn de détection(capture)
+

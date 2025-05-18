@@ -37,9 +37,6 @@ def actions_thread_loop():
         except:
             continue  # Timeout ou vide, on passe à la suite
 
-# je capture = capture
-# je reçois l'image  rendue = analyzed_frame
-
 auto_fire_on = False  # variable globale, accessible dans farm()
 # last_auto_fire = 0
 
