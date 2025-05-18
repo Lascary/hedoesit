@@ -15,8 +15,10 @@ git commit -m "Description des modifications"
 
 Pousser les modifications vers GitHub :
 git push origin main
+git push origin 2
 
 si nvle branche:
+    
 git push -u origin minimap_reco_and_display
 
 Si modifications faites sur github et à importer dans vsc:
