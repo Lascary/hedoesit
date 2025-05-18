@@ -16,6 +16,8 @@ git commit -m "Description des modifications"
 Pousser les modifications vers GitHub :
 git push origin main
 
+si nvle branche:
+git push -u origin minimap_reco_and_display
 
 Si modifications faites sur github et à importer dans vsc:
 dans terminal vsc =
@@ -27,8 +29,9 @@ git pull origin main
 Créer une nouvelle branche pour tester une version
 git checkout -b minimap_reco_and_display
 
-Revenir à la version stable (branche main)
+Revenir à la branche:
 git checkout main
+git checkout minimap_reco_and_display
 
 Fusionner si la nouvelle version te plaît
 git checkout main

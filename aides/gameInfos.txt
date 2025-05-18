@@ -1,0 +1,5 @@
+minimap:
+    screen 1/2 right: (avec coo du full screen)
+        1257,618    1354,619
+        1256,715    1354,714
+        = 100*100 = 10 000 pixels

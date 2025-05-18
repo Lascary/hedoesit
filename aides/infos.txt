@@ -5,3 +5,5 @@ dans 1 : pb reco de mes bullets : me base sur couleur centre! (donne blanc ou no
 
 image_processing1:
     couleurs pour détection du joueur proche centre = que le bleu du sandbox
+
+

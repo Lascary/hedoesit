@@ -13,6 +13,7 @@ from display_renderer import create_display, draw_shapes_on_frame, frame_display
 
 # détection
 from polygones_detection import passive_polygons_detector
+from minimap_detection import minimap_detector
 
 # Actions
 from actions_decider import actions_decider
@@ -49,6 +50,7 @@ def main():
 def capture_analysis(capture):
     all_draw_instructions = []
     all_draw_instructions += passive_polygons_detector(capture)
+    all_draw_instructions += minimap_detector(capture)
 
     return all_draw_instructions
 

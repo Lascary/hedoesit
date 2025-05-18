@@ -28,6 +28,9 @@ def draw_shapes_on_frame(frame, all_draw_instructions):
             elif draw_cmd[0] == "line":
                 _, pt1, pt2, color, thickness = draw_cmd
                 cv2.line(frame, pt1, pt2, color, thickness)
+            elif draw_cmd[0] == "rect":
+                _, pt1, pt2, color, thickness = draw_cmd
+                cv2.rectangle(frame, pt1, pt2, color, thickness)
     return frame
 
 
