@@ -1,9 +1,3 @@
-image_processing0 = fonctionnait, mais moins poussé que 1
-dans 1 : pb reco de mes bullets : me base sur couleur centre! (donne blanc ou noir)
-    réparer ma bullet detct
-    différencier les 3 types de poly
-
-image_processing1:
-    couleurs pour détection du joueur proche centre = que le bleu du sandbox
-
+capture => hsv = passe BGR à HSV (formats de couleur)
+Donc toutes les fonctions d'analyse d'image reçoivent le hsv pour traitement. Jamais capture
 

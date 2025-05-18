@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-def passive_polygons_detector(capture):
-    hsv = cv2.cvtColor(capture, cv2.COLOR_BGR2HSV)
+def passive_polygons_detector(hsv):
+
 
     masks = {
         "yellow_square": create_color_mask(hsv, 25, 150, 255),

@@ -1,6 +1,6 @@
 comment ajouter une nouvelle détection sur la capture et l'afficher sur la frame:
 1- Créer nvelle fn et? nv module
-    def nvelle fn de deétection(capture):
+    def nvelle fn de deétection(hsv):
 
         detections.append({
                 "type": shape_name,

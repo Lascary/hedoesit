@@ -5,14 +5,14 @@ import numpy as np
 
 
 
-def minimap_detector(capture: np.ndarray, width: int = 102, height: int = 102, offset_x: int = 10, offset_y: int = 7):
+def minimap_detector(hsv: np.ndarray, width: int = 102, height: int = 102, offset_x: int = 10, offset_y: int = 7):
     detections = []
 
     # photo découpee de la minimap en bas à droite
-    minimap = crop_bottom_right_area(capture, width=width, height=height, offset_x=offset_x, offset_y=offset_y)
+    minimap = crop_bottom_right_area(hsv, width=width, height=height, offset_x=offset_x, offset_y=offset_y)
 
     # Coordonnées du rectangle dans l’image d’origine
-    img_height, img_width, _ = capture.shape
+    img_height, img_width, _ = hsv.shape
     x = img_width - width - offset_x
     y = img_height - height - offset_y
     w, h = width, height
@@ -56,9 +56,9 @@ def minimap_detector(capture: np.ndarray, width: int = 102, height: int = 102, o
 #     height, width, _ = capture.shape
 #     return capture[height - size : height, width - size : width]
 
-def crop_bottom_right_area(capture: np.ndarray, width: int = 150, height: int = 150, offset_x: int = 0, offset_y: int = 0) -> np.ndarray:
-    img_height, img_width, _ = capture.shape
-    return capture[
+def crop_bottom_right_area(hsv: np.ndarray, width: int = 150, height: int = 150, offset_x: int = 0, offset_y: int = 0) -> np.ndarray:
+    img_height, img_width, _ = hsv.shape
+    return hsv[
         img_height - height - offset_y : img_height - offset_y,
         img_width - width - offset_x : img_width - offset_x
     ]

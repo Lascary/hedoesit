@@ -3,3 +3,27 @@ minimap:
         1257,618    1354,619
         1256,715    1354,714
         = 100*100 = 10 000 pixels
+
+
+
+Couleurs des joueurs et de leurs balles
+# 🔴 ROUGE — HSV(358°, 69%, 95%)
+lower_red = np.array([176, 160, 217])
+upper_red = np.array([179, 200, 255])
+
+# 🟣 VIOLET — HSV(273°, 50%, 97%)
+lower_purple = np.array([134, 115, 217])
+upper_purple = np.array([139, 153, 255])
+
+# 🟢 VERT — HSV(148°, 100%, 89%)
+lower_green = np.array([73, 230, 202])
+upper_green = np.array([78, 255, 252])
+
+# 🔵 BLEU — HSV(193°, 100%, 89%)
+lower_blue = np.array([94, 230, 202])
+upper_blue = np.array([99, 255, 252])
+
+CANON des joueurs
+# ⚪ GRIS — HSV(0°, 0%, 60%) → teinte non pertinente
+lower_gray = np.array([0, 0, 50])
+upper_gray = np.array([180, 20, 70])

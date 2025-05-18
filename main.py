@@ -14,6 +14,7 @@ from display_renderer import create_display, draw_shapes_on_frame, frame_display
 # détection
 from polygones_detection import passive_polygons_detector
 from minimap_detection import minimap_detector
+from ennemy_objects_detection import detect_enemy_players_and_bullets
 
 # Actions
 from actions_decider import actions_decider
@@ -47,10 +48,11 @@ def main():
 
     run()
 
-def capture_analysis(capture):
+def capture_analysis(hsv):
     all_draw_instructions = []
-    all_draw_instructions += passive_polygons_detector(capture)
-    all_draw_instructions += minimap_detector(capture)
+    all_draw_instructions += passive_polygons_detector(hsv)
+    all_draw_instructions += minimap_detector(hsv)
+    all_draw_instructions += detect_enemy_players_and_bullets(hsv)
 
     return all_draw_instructions
 
@@ -66,7 +68,8 @@ def run():
 
         global auto_fire_on
         capture = game_screener()
-        all_draw_instructions = capture_analysis(capture) # lance les reconnaissances d'image // fait dans display_renderer = frame_renderer
+        hsv = cv2.cvtColor(capture, cv2.COLOR_BGR2HSV)
+        all_draw_instructions = capture_analysis(hsv) # lance les reconnaissances d'image // fait dans display_renderer = frame_renderer
         frame = draw_shapes_on_frame(capture.copy(), all_draw_instructions)
         frame_display(frame) # affiche frame finale
 

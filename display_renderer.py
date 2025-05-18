@@ -21,7 +21,7 @@ def draw_shapes_on_frame(frame, all_draw_instructions):
         for draw_cmd in item["draw"]:
             if draw_cmd[0] == "circle":
                 _, center, radius, color, thickness = draw_cmd
-                cv2.circle(frame, center, radius, color, thickness)
+                cv2.circle(frame, center, int(radius), color, thickness)
             elif draw_cmd[0] == "text":
                 _, position, text, font, size, color, thickness = draw_cmd
                 cv2.putText(frame, text, position, font, size, color, thickness)
