@@ -25,5 +25,5 @@ upper_blue = np.array([99, 255, 252])
 
 CANON des joueurs
 # ⚪ GRIS — HSV(0°, 0%, 60%) → teinte non pertinente
-lower_gray = np.array([0, 0, 50])
-upper_gray = np.array([180, 20, 70])
+lower_gray = np.array([0, 0, 58])
+upper_gray = np.array([180, 5, 62])

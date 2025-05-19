@@ -22,7 +22,6 @@ from actions_decider import actions_decider
 # test thread:
 import threading
 from queue import Queue
-from actions_decider import actions_decider
 
 auto_fire_on = False
 instruction_queue = Queue(maxsize=1) # maxsize=1 pour ne jamais accumuler de retard
