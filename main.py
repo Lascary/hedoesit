@@ -1,15 +1,9 @@
-import mss
-import numpy as np
 import cv2
-import pygetwindow as gw
-import win32con
-import win32gui
 import time
-
 
 # Outils
 from screen_capture import screen_init, game_screener
-from display_renderer import create_display, draw_shapes_on_frame, frame_display
+from display_renderer import create_display, draw_shapes_on_frame, frame_display, debug_display
 
 # détection
 from polygones_detection import passive_polygons_detector
@@ -21,11 +15,13 @@ from actions_decider import actions_decider
 
 # test thread:
 import threading
-from queue import Queue
+from queue import Queue, Full
+
 
 auto_fire_on = False
 instruction_queue = Queue(maxsize=1) # maxsize=1 pour ne jamais accumuler de retard
 lock = threading.Lock()
+
 
 def actions_thread_loop():
     global auto_fire_on
@@ -38,14 +34,6 @@ def actions_thread_loop():
         except:
             continue  # Timeout ou vide, on passe à la suite
 
-auto_fire_on = False  # variable globale, accessible dans farm()
-# last_auto_fire = 0
-
-def main():
-    # screen_init() pas utile, j'ai démarqué un rectangle où screener dans screener()
-    create_display()
-
-    run()
 
 def capture_analysis(hsv):
     all_draw_instructions = []
@@ -55,6 +43,7 @@ def capture_analysis(hsv):
 
     return all_draw_instructions
 
+
 def run():
     fps_limit = 40
     frame_duration = 1 / fps_limit
@@ -62,20 +51,36 @@ def run():
     # Démarre le thread d'action
     threading.Thread(target=actions_thread_loop, daemon=True).start()
     
+    frame_count = 0
+    prev_time = time.time()
+    
     while True:
+        frame_count += 1
         start_time = time.time()
 
-        global auto_fire_on
+        if frame_count % 4 == 0:
+            fps = int(1 / (start_time - prev_time)) if start_time != prev_time else 0
+            debug_display(fps)
+            prev_time = start_time
+
+        # global auto_fire_on
         capture = game_screener()
         hsv = cv2.cvtColor(capture, cv2.COLOR_BGR2HSV)
         all_draw_instructions = capture_analysis(hsv) # lance les reconnaissances d'image // fait dans display_renderer = frame_renderer
+
         frame = draw_shapes_on_frame(capture.copy(), all_draw_instructions)
         frame_display(frame) # affiche frame finale
 
-        # Envoie les instructions au thread, sans bloquer
-        if not instruction_queue.full():
-            instruction_queue.put(all_draw_instructions)
-        # pour THREAD : auto_fire_on = actions_decider(all_draw_instructions, auto_fire_on)
+        # Envoie les instructions au thread, sans bloquer:
+
+        # if not instruction_queue.full():
+        #     instruction_queue.put(all_draw_instructions)
+        # # pour THREAD : auto_fire_on = actions_decider(all_draw_instructions, auto_fire_on)
+
+        try:
+            instruction_queue.put_nowait(all_draw_instructions)
+        except Full:
+            pass  # Ne bloque jamais
         
         elapsed = time.time() - start_time
         time_to_sleep = frame_duration - elapsed
@@ -88,6 +93,10 @@ def run():
     cv2.destroyAllWindows()
 
 
+def main():
+    # screen_init() pas utile, j'ai démarqué un rectangle où screener dans screener()
+    create_display()
+    run()
 
 
 if __name__ == "__main__":

@@ -4,6 +4,12 @@ minimap:
         1256,715    1354,714
         = 100*100 = 10 000 pixels
 
+tanks mines:
+smasher RGB:64,64,64
+Land mine RGB:64,64,64
+auto smasher RGB:64,64,64 + canon!
+mega smasher RGB: 85,85,85
+spike RGB: 64,64,64, et 85,85,85
 
 
 Couleurs des joueurs et de leurs balles
