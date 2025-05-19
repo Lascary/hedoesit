@@ -23,6 +23,8 @@ def screen_init():
     diep_window = get_firefox_window()
     if not diep_window:
         raise RuntimeError("Fenêtre Firefox 'diep.io' introuvable.")
+    else:
+        diep_window.activate()
     # focus_and_maximize_window() // pas utiles pour le moment, je mets moi-même la fenêtre du jeu au bon endroit
     # Affiche position et taille pour debug
     # print(f"Fenêtre Firefox: Left={diep_window.left}, Top={diep_window.top}, Width={diep_window.width}, Height={diep_window.height}")

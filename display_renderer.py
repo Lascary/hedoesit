@@ -69,13 +69,39 @@ def frame_display(frame):
 img_base = np.zeros((45, 680, 3), dtype=np.uint8)
 cv2.putText(img_base, "FPS:", (10, 15), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 255, 0), 1)
 
-def debug_display(fps):
-    img = img_base.copy()  # copie l’image de base
-    cv2.putText(img, f"FPS: {fps}", (10, 15), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 255, 0), 1)
+
+
+# Crée une base avec 3 lignes de 20px : 60 pixels de hauteur
+img_base = np.zeros((45, 680, 3), dtype=np.uint8)
+# cv2.putText(img_base, "FPS:", (10, 15), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 255, 0), 1)
+
+def debug_display(fps, timings=None):
+    img = img_base.copy()
+
+    # Ligne 1 : FPS + premiers timings
+    text_line1 = f"FPS:{fps}"
+    text_line2 = ""
+    text_line3 = ""
+
+    if timings:
+        items = list(timings.items())
+        chunks = [items[i:i+3] for i in range(0, len(items), 3)]
+        lines = []
+        for chunk in chunks:
+            line = " | ".join([f"{name}:{val*1000:.0f}ms" for name, val in chunk])
+            lines.append(line)
+
+        if len(lines) > 0:
+            text_line1 += "  |  " + lines[0]
+        if len(lines) > 1:
+            text_line2 = lines[1]
+        if len(lines) > 2:
+            text_line3 = lines[2]
+
+    # Affichage des lignes
+    cv2.putText(img, text_line1, (10, 15), cv2.FONT_HERSHEY_PLAIN, 0.9, (0, 255, 0), 1)  # Vert fluo
+    cv2.putText(img, text_line2, (10, 30), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 255, 255), 1)  # Cyan fluo
+    cv2.putText(img, text_line3, (10, 45), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 255, 0), 1)    # Vert fluo
+
     cv2.imshow("Bot Status", img)
     cv2.waitKey(1)
-
-
-
-
-

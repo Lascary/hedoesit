@@ -25,8 +25,8 @@ with mss.mss() as sct:
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
         # Masque gris très resserré (autour de HSV(0, 0, 60))
-        lower_gray = np.array([0, 0, 152])
-        upper_gray = np.array([180, 20, 154])
+        lower_gray = np.array([175, 160, 220])
+        upper_gray = np.array([179, 185, 255])
         gray_mask = cv2.inRange(hsv, lower_gray, upper_gray)
 
         # Affichage

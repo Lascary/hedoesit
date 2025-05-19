@@ -8,7 +8,7 @@ import numpy as np
 def minimap_detector(hsv: np.ndarray, width: int = 102, height: int = 102, offset_x: int = 10, offset_y: int = 7):
     detections = []
 
-    # photo découpee de la minimap en bas à droite
+    # photo découpée de la minimap en bas à droite
     minimap = crop_bottom_right_area(hsv, width=width, height=height, offset_x=offset_x, offset_y=offset_y)
 
     # Coordonnées du rectangle dans l’image d’origine

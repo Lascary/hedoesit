@@ -1,0 +1,58 @@
+import math
+import random
+
+def normalize(vx, vy):
+    norm = math.hypot(vx, vy)
+    return (vx / norm, vy / norm) if norm != 0 else (0, 0)
+
+def dot(ax, ay, bx, by):
+    return ax * bx + ay * by
+
+def perp(vx, vy):
+    return -vy, vx  # vecteur perpendiculaire à gauche
+
+def is_dangerous_bullet(player_pos, bullet, safe_radius=30, prediction_time=1.5):
+    px, py = player_pos
+    bx, by = bullet['x'], bullet['y']
+    vx, vy = bullet['vx'], bullet['vy']
+    
+    # vecteur balle → joueur
+    dx, dy = px - bx, py - by
+    
+    # normalisation de la direction de la balle
+    dir_vx, dir_vy = normalize(vx, vy)
+
+    # projection du vecteur balle-joueur sur la direction de la balle
+    proj_length = dot(dx, dy, dir_vx, dir_vy)
+    
+    # position prédite de la balle dans `t` secondes
+    if proj_length < 0:
+        return False  # balle s’éloigne
+    if proj_length > prediction_time * math.hypot(vx, vy):
+        return False  # trop loin dans le futur
+    
+    # point d’impact potentiel
+    impact_x = bx + dir_vx * proj_length
+    impact_y = by + dir_vy * proj_length
+    
+    # distance à ce point d’impact
+    dist_to_impact = math.hypot(px - impact_x, py - impact_y)
+    
+    return dist_to_impact < safe_radius
+
+def compute_avoidance_vector(player_pos, bullets):
+    total_avoid_x, total_avoid_y = 0, 0
+    for bullet in bullets:
+        if is_dangerous_bullet(player_pos, bullet):
+            # on fuit perpendiculairement à la direction de la balle
+            vx, vy = bullet['vx'], bullet['vy']
+            avx, avy = perp(vx, vy)
+            avx, avy = normalize(avx, avy)
+            # on cumule l'effet de chaque balle dangereuse
+            total_avoid_x += avx
+            total_avoid_y += avy
+
+    if total_avoid_x == 0 and total_avoid_y == 0:
+        return (0, 0)  # aucune balle dangereuse
+
+    return normalize(total_avoid_x, total_avoid_y)
