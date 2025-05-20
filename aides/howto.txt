@@ -17,6 +17,13 @@ comment ajouter une nouvelle détection sur la capture et l'afficher sur la fram
 
 2- module main
     import nv module? nvelle fn de détection
-    def capture_analysis: ajouter
+    def detect_on_capture: ajouter
         all_draw_instructions += nvlle fn de détection(capture)
 
+
+dans all_draw_instructions:
+   {
+    "type": "background_speed",
+    "speed" : speed,
+    "draw": draw_list
+    }

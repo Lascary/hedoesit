@@ -2,9 +2,6 @@ import cv2
 import numpy as np
 
 
-
-
-
 def minimap_detector(hsv: np.ndarray, width: int = 102, height: int = 102, offset_x: int = 10, offset_y: int = 7):
     detections = []
 
@@ -29,6 +26,13 @@ def minimap_detector(hsv: np.ndarray, width: int = 102, height: int = 102, offse
 
     return detections  # , minimap si tu veux l'image extraite
 
+
+def crop_bottom_right_area(hsv: np.ndarray, width: int = 150, height: int = 150, offset_x: int = 0, offset_y: int = 0) -> np.ndarray:
+    img_height, img_width, _ = hsv.shape
+    return hsv[
+        img_height - height - offset_y : img_height - offset_y,
+        img_width - width - offset_x : img_width - offset_x
+    ]
 
 
 
@@ -56,10 +60,4 @@ def minimap_detector(hsv: np.ndarray, width: int = 102, height: int = 102, offse
 #     height, width, _ = capture.shape
 #     return capture[height - size : height, width - size : width]
 
-def crop_bottom_right_area(hsv: np.ndarray, width: int = 150, height: int = 150, offset_x: int = 0, offset_y: int = 0) -> np.ndarray:
-    img_height, img_width, _ = hsv.shape
-    return hsv[
-        img_height - height - offset_y : img_height - offset_y,
-        img_width - width - offset_x : img_width - offset_x
-    ]
 

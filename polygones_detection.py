@@ -25,7 +25,8 @@ def passive_polygons_detector(hsv):
                 "type": shape_name,
                 "position": (cx, cy),
                 "draw": [
-                    ("circle", (cx, cy), 5, (255, 0, 255), 1),  # magenta cercle
+                    ("rect", (cx, cy), 5, (0, 0, 0), 1)
+                    # ("circle", (cx, cy), 5, (255, 0, 255), 1),  # magenta cercle
                     ("circle", (cx, cy), 1, (0, 0, 0), -1),     # petit point noir
                 ]
             })

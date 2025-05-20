@@ -16,7 +16,7 @@ last_move_key_time = 0
 def aim_at_target(target):
     global last_move_mouse_time
     now = time.time()
-    if now - last_move_mouse_time > 0.1:  # 0.2 = limite les moves à 5 fois/seconde max
+    if now - last_move_mouse_time > 0.01:  # 0.2 = limite les moves à 5 fois/seconde max
         if "position" in target:
             x, y = target["position"]
             screen_x = CAPTURE_LEFT + x

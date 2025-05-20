@@ -9,10 +9,18 @@ from display_renderer import create_display, draw_shapes_on_frame, frame_display
 from polygones_detection import passive_polygons_detector
 from minimap_detection import minimap_detector
 from tanks_and_bullets_detection import detect_players_bullets_and_self
+from calculate_speed import estimate_background_speed
 
+# Mesures
+from calculate_speed import calculate_things_speed
 
 # Actions
 from actions_decider import actions_decider
+
+# Istanciation
+from calculate_speed import EntityTracker
+entity_tracker = EntityTracker()
+
 
 # test thread:
 import threading
@@ -36,15 +44,24 @@ def actions_thread_loop():
             continue  # Timeout ou vide, on passe à la suite
 
 
-def capture_analysis(hsv, self_color):
+def detect_on_capture(prev_hsv,hsv, self_color):
     all_draw_instructions = []
-    all_draw_instructions += passive_polygons_detector(hsv)
-    all_draw_instructions += minimap_detector(hsv)
 
     # Nouvelle version : tuple (detections, self_color)
     detections, new_self_color = detect_players_bullets_and_self(hsv, known_self_color=self_color)
     all_draw_instructions += detections
+
+    all_draw_instructions += passive_polygons_detector(hsv)
+    all_draw_instructions += minimap_detector(hsv)
+    all_draw_instructions += estimate_background_speed(prev_hsv, hsv)
+
     return all_draw_instructions, new_self_color
+
+
+def analyse_things_detected(all_draw_instructions, capture_time, current_frame):
+    global entity_tracker
+    return calculate_things_speed(all_draw_instructions, entity_tracker, current_frame, capture_time)
+
 
 
 def run():
@@ -56,6 +73,7 @@ def run():
     frame_count = 0
     prev_time = time.time()
     self_color = None
+    prev_hsv = None
     module_timings = {}  # Dictionnaire pour stocker les temps
 
     while True:
@@ -64,28 +82,21 @@ def run():
 
         capture_start = time.time()
         capture = game_screener()
+        capture_time = time.time()
         hsv = cv2.cvtColor(capture, cv2.COLOR_BGR2HSV)
         module_timings["Capture+HSV"] = time.time() - capture_start
 
-        # Analyse de l'image
-        analysis_start = time.time()
-        all_draw_instructions = []
-        
-        t0 = time.time()
-        all_draw_instructions += passive_polygons_detector(hsv)
-        module_timings["Passive polygons"] = time.time() - t0
-
-        t0 = time.time()
-        all_draw_instructions += minimap_detector(hsv)
-        module_timings["Minimap"] = time.time() - t0
-
-        t0 = time.time()
-        detections, new_self_color = detect_players_bullets_and_self(hsv, known_self_color=self_color)
-        module_timings["Tanks+Bullets"] = time.time() - t0
-        all_draw_instructions += detections
+        # Détections sur l'image
+        all_draw_instructions, new_self_color = detect_on_capture(prev_hsv, hsv, self_color)
         self_color = new_self_color
 
-        module_timings["Total analysis"] = time.time() - analysis_start
+        # Analyse des détections
+        all_draw_instructions = analyse_things_detected(all_draw_instructions, capture_time, capture)
+
+        try:
+            instruction_queue.put_nowait(all_draw_instructions)
+        except Full:
+            pass
 
         # Affichage image
         t0 = time.time()
@@ -93,10 +104,7 @@ def run():
         frame_display(frame)
         module_timings["Draw+Display"] = time.time() - t0
 
-        try:
-            instruction_queue.put_nowait(all_draw_instructions)
-        except Full:
-            pass
+        prev_hsv = hsv.copy()
         
         elapsed = time.time() - start_time
         time_to_sleep = frame_duration - elapsed
@@ -116,7 +124,7 @@ def run():
 
 
 def main():
-    screen_init() # pas utile, j'ai démarqué un rectangle où screener dans screener()
+    screen_init()
     create_display()
 
     run()
