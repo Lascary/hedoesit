@@ -1,7 +1,7 @@
 import time
 import math
 import cv2
-
+import numpy as np
 
 class EntityTracker:
     def __init__(self):
@@ -43,9 +43,11 @@ class EntityTracker:
                 vy = (y - py - dy_bg) / dt
                 speed = math.hypot(vx, vy)
 
+
                 entity["speed_x"] = vx
                 entity["speed_y"] = vy
                 entity["speed"] = speed
+    
 
                 entity.setdefault("draw", []).append(
                     ("line", (int(px), int(py)), (int(x), int(y)), (0, 255, 255), 2)
@@ -118,8 +120,15 @@ def calculate_things_speed(all_draw_instructions, entity_tracker, current_frame=
 
 # Fonction estimate_background_speed améliorée (retourne dx, dy pour être plus précis)
 
-def estimate_background_speed(prev_frame, current_frame):
-    if prev_frame is None or current_frame is None:
+
+
+
+import cv2
+import numpy as np
+import math
+
+def estimate_background_speed(prev_hsv, curr_hsv):
+    if prev_hsv is None or curr_hsv is None:
         return [{
             "type": "background_speed",
             "speed": 0,
@@ -128,30 +137,30 @@ def estimate_background_speed(prev_frame, current_frame):
             "draw": []
         }]
 
-    # Convertir en gris
-    if len(prev_frame.shape) == 3:
-        prev_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
-    else:
-        prev_gray = prev_frame.copy()
+    lower_gray = np.array([0, 0, 193])
+    upper_gray = np.array([0, 0, 203])
 
-    if len(current_frame.shape) == 3:
-        curr_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
-    else:
-        curr_gray = current_frame.copy()
+    prev_mask = cv2.inRange(prev_hsv, lower_gray, upper_gray)
+    curr_mask = cv2.inRange(curr_hsv, lower_gray, upper_gray)
 
-    h, w = prev_gray.shape
-    win_size = 100
-    x_start = w // 2 - win_size // 2
-    y_start = h // 2 - win_size // 2
+    # Utilise les canaux HSV filtrés comme des images 1 canal (améliore matchTemplate)
+    h, w = prev_mask.shape
+    win_size = 200
+    margin = 50
+    cx, cy = w // 2, h // 2
 
-    template = prev_gray[y_start:y_start + win_size, x_start:x_start + win_size]
-    search_margin = 20
-    search_area = curr_gray[
-        y_start - search_margin:y_start + win_size + search_margin,
-        x_start - search_margin:x_start + win_size + search_margin
-    ]
+    x0 = cx - win_size // 2
+    y0 = cy - win_size // 2
 
-    if search_area.shape[0] < template.shape[0] or search_area.shape[1] < template.shape[1]:
+    x1 = max(0, x0 - margin)
+    y1 = max(0, y0 - margin)
+    x2 = min(w, x0 + win_size + margin)
+    y2 = min(h, y0 + win_size + margin)
+
+    template = prev_mask[y0:y0+win_size, x0:x0+win_size]
+    search_area = curr_mask[y1:y2, x1:x2]
+
+    if search_area.shape[0] < win_size or search_area.shape[1] < win_size:
         return [{
             "type": "background_speed",
             "speed": 0,
@@ -160,23 +169,27 @@ def estimate_background_speed(prev_frame, current_frame):
             "draw": []
         }]
 
-    result = cv2.matchTemplate(search_area, template, cv2.TM_CCORR_NORMED)
+    result = cv2.matchTemplate(search_area, template, cv2.TM_CCOEFF_NORMED)
     _, _, _, max_loc = cv2.minMaxLoc(result)
 
-    dx = max_loc[0] - search_margin
-    dy = max_loc[1] - search_margin
+    dx = max_loc[0] - (x0 - x1)
+    dy = max_loc[1] - (y0 - y1)
     speed = math.hypot(dx, dy)
 
-    center_x, center_y = w // 2, h // 2
-    draw_list = [
-                ("rectangle", (x_start, y_start, x_start + win_size, y_start + win_size), (0, 255, 0), 1),
-                ("rectangle", (x_start - search_margin, y_start - search_margin, x_start + win_size + search_margin, y_start + win_size + search_margin), (0, 255, 255), 1),
-                ("line", (center_x, center_y), (center_x + dx, center_y + dy), (255, 0, 0), 2),
-                ("text", (center_x + dx + 5, center_y + dy + 5), f"BG speed: {speed:.2f} px", cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1)
-                ]
+    draw = [
+        ("rectangle", (x0, y0, x0 + win_size, y0 + win_size), (0, 255, 0), 1),
+        ("rectangle", (x1, y1, x2, y2), (0, 255, 255), 1),
+        ("line", (cx, cy), (cx + dx, cy + dy), (255, 0, 0), 2),
+        ("text", (cx + dx + 5, cy + dy + 5), f"BG speed: {speed:.2f} px", cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1)
+    ]
+
     return [{
-            "type": "background_speed",
-            "speed_dx": dx,
-            "speed_dy": dy,
-            "draw": draw_list
-            }]
+        "type": "background_speed",
+        "speed": speed,
+        "speed_dx": dx,
+        "speed_dy": dy,
+        "draw": draw
+    }]
+
+
+

@@ -24,25 +24,25 @@ with mss.mss() as sct:
         # Conversion en HSV
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-        # Masque gris très resserré (autour de HSV(0, 0, 60))
-        lower_gray = np.array([175, 160, 220])
-        upper_gray = np.array([179, 185, 255])
+        # Masque 
+        lower_gray = np.array([0,0,193])
+        upper_gray = np.array([0,0,203])
         gray_mask = cv2.inRange(hsv, lower_gray, upper_gray)
 
         # Affichage
-        cv2.imshow("Masque gris (canons)", gray_mask)
+        cv2.imshow("Masque", gray_mask)
         # cv2.imshow("Image source", frame)
 
         # Déplacer les fenêtres
-        cv2.moveWindow("Masque gris (canons)", 0, 0)                     # à gauche
+        cv2.moveWindow("Masque", 0, 0)                     # à gauche
         # cv2.moveWindow("Image source", screen_width // 2, 0)
 
         # Ajuster leur taille
-        cv2.resizeWindow("Masque gris (canons)", screen_width // 2, screen_height)
+        cv2.resizeWindow("Masque", screen_width // 2, screen_height)
         # cv2.resizeWindow("Image source", screen_width // 2, screen_height) 
 
-        # Quitter avec ESC
-        if cv2.waitKey(1) & 0xFF == 27:
+        # Quitter avec k
+        if cv2.waitKey(1) & 0xFF == ord('k'):
             break
 
     cv2.destroyAllWindows()

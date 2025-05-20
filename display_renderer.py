@@ -46,19 +46,21 @@ def create_display():
 def draw_shapes_on_frame(frame, all_draw_instructions):
     for item in all_draw_instructions:
         for draw_cmd in item["draw"]:
-            if draw_cmd[0] == "circle":
+            draw_type = draw_cmd[0]
+            if draw_type == "circle":
                 _, center, radius, color, thickness = draw_cmd
                 cv2.circle(frame, center, int(radius), color, thickness)
-            elif draw_cmd[0] == "text":
+            elif draw_type == "text":
                 _, position, text, font, size, color, thickness = draw_cmd
                 cv2.putText(frame, text, position, font, size, color, thickness)
-            elif draw_cmd[0] == "line":
+            elif draw_type == "line":
                 _, pt1, pt2, color, thickness = draw_cmd
                 cv2.line(frame, pt1, pt2, color, thickness)
-            elif draw_cmd[0] == "rect":
+            elif draw_type == "rect":
                 _, pt1, pt2, color, thickness = draw_cmd
                 cv2.rectangle(frame, pt1, pt2, color, thickness)
     return frame
+
 
 
 def frame_display(frame):

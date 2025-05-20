@@ -1,6 +1,6 @@
 import time
 
-from bullet_avoidance import is_dangerous_bullet
+# from bullet_avoidance import is_dangerous_bullet
 from farm import farm
 
 
@@ -16,7 +16,7 @@ def actions_decider(all_draw_instructions, auto_fire_on):
     tank_to_fight = {"ennemy_player"}
 
     if threat is True:
-        is_dangerous_bullet(all_draw_instructions)
+        return
 
     else:
         shapes_to_farm = {"yellow_square", "red_triangle", "blue_pentagon"}
