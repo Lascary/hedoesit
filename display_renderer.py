@@ -45,20 +45,21 @@ def create_display():
 # reçoit une liste des coordonnées et des trucs à dessiner sur capture, le fait, retourne frame
 def draw_shapes_on_frame(frame, all_draw_instructions):
     for item in all_draw_instructions:
-        for draw_cmd in item["draw"]:
-            draw_type = draw_cmd[0]
-            if draw_type == "circle":
-                _, center, radius, color, thickness = draw_cmd
-                cv2.circle(frame, center, int(radius), color, thickness)
-            elif draw_type == "text":
-                _, position, text, font, size, color, thickness = draw_cmd
-                cv2.putText(frame, text, position, font, size, color, thickness)
-            elif draw_type == "line":
-                _, pt1, pt2, color, thickness = draw_cmd
-                cv2.line(frame, pt1, pt2, color, thickness)
-            elif draw_type == "rect":
-                _, pt1, pt2, color, thickness = draw_cmd
-                cv2.rectangle(frame, pt1, pt2, color, thickness)
+        if "draw" in item:
+            for draw_cmd in item["draw"]:
+                draw_type = draw_cmd[0]
+                if draw_type == "circle":
+                    _, center, radius, color, thickness = draw_cmd
+                    cv2.circle(frame, center, int(radius), color, thickness)
+                elif draw_type == "text":
+                    _, position, text, font, size, color, thickness = draw_cmd
+                    cv2.putText(frame, text, position, font, size, color, thickness)
+                elif draw_type == "line":
+                    _, pt1, pt2, color, thickness = draw_cmd
+                    cv2.line(frame, pt1, pt2, color, thickness)
+                elif draw_type == "rect":
+                    _, pt1, pt2, color, thickness = draw_cmd
+                    cv2.rectangle(frame, pt1, pt2, color, thickness)
     return frame
 
 

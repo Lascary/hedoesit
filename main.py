@@ -53,7 +53,7 @@ def detect_on_capture(prev_hsv,hsv, self_color):
 
     all_draw_instructions += passive_polygons_detector(hsv)
     all_draw_instructions += minimap_detector(hsv)
-    all_draw_instructions += estimate_background_speed(prev_hsv, hsv)
+    all_draw_instructions += estimate_background_speed(all_draw_instructions,prev_hsv, hsv)
 
     return all_draw_instructions, new_self_color
 
@@ -65,9 +65,6 @@ def analyse_things_detected(all_draw_instructions, capture_time, current_frame):
 
 
 def run():
-    fps_limit = 40
-    frame_duration = 1 / fps_limit
-    
     threading.Thread(target=actions_thread_loop, daemon=True).start()
 
     frame_count = 0
@@ -107,9 +104,9 @@ def run():
         prev_hsv = hsv.copy()
         
         elapsed = time.time() - start_time
-        time_to_sleep = frame_duration - elapsed
-        if time_to_sleep > 0:
-            time.sleep(time_to_sleep)
+        # time_to_sleep = frame_duration - elapsed
+        # if time_to_sleep > 0:
+        #     time.sleep(time_to_sleep)
 
         # Calcul FPS réel
         if frame_count % 5 == 0:

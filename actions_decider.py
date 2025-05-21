@@ -26,9 +26,9 @@ def actions_decider(all_draw_instructions, auto_fire_on):
         ]
 
         # Farmer
-        if (farm_targets or auto_fire_on) and (now - last_farm_time > 0.1): # 0.1 =  max 10 FPS
-            auto_fire_on = farm(farm_targets, auto_fire_on)
-            last_farm_time = now
+        # if (farm_targets or auto_fire_on) and (now - last_farm_time > 0.1): # 0.1 =  max 10 FPS
+        #     auto_fire_on = farm(farm_targets, auto_fire_on)
+        #     last_farm_time = now
 
 
     return auto_fire_on
