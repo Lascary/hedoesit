@@ -1,0 +1,13 @@
+Si la plage [193–203] dans le canal V (luminance) capture d'autres éléments gris que le quadrillage que tu veux suivre,
+alors le masque contiendra plus que le quadrillage, ce qui peut fausser le calcul du déplacement.
+
+Si le quadrillage a une forme particulière (lignes droites, régularité), tu pourrais :
+    Ajouter une étape de morphologie (cv2.erode, cv2.dilate) pour affiner le masque.
+    Utiliser cv2.Canny() ou cv2.HoughLines() pour ne garder que des lignes, par exemple.
+
+coûteux en ressources
+Tu pourrais remplacer ou compléter ce système par un optical flow dense (cv2.calcOpticalFlowFarneback)
+pour estimer directement les vecteurs de déplacement des pixels.
+
+Aim.py = ajouter vitesse de mes bullets : 
+empirique = quand mon calculateur des vitesses fonctionnera

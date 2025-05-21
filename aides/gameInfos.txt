@@ -11,6 +11,8 @@ auto smasher RGB:64,64,64 + canon!
 mega smasher RGB: 85,85,85
 spike RGB: 64,64,64, et 85,85,85
 
+bullets = 3 seconds alive
+
 
 background:
 lignes : rgb = entre 194,194,194 et 198, 198, 198. hsv = 0, 0, 78

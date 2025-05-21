@@ -101,7 +101,7 @@ def calculate_things_speed(all_draw_instructions, entity_tracker, current_frame=
     # Récupération de la vitesse du fond
     background_speed = (0, 0)
     for item in all_draw_instructions:
-        if "type"== "background_speed":
+        if item.get("type") == "background_speed":
             background_speed = (item.get("speed_dx", 0), item.get("speed_dy", 0))
             break
 
@@ -111,9 +111,9 @@ def calculate_things_speed(all_draw_instructions, entity_tracker, current_frame=
     object_to_avoid = {"ennemy_bullet"}
     tank_to_fight = {"ennemy_player"}
     types_to_track = object_to_avoid.union(tank_to_fight)
-
+    
     # Extraction des entités à tracker
-    tracked_input = [item for item in all_draw_instructions if "type" in types_to_track]
+    tracked_input = [item for item in all_draw_instructions if item.get("type") in types_to_track]
 
     # Mise à jour du tracker
     tracked_output = entity_tracker.update(tracked_input, current_frame, current_time, dx_bg, dy_bg)
@@ -121,7 +121,7 @@ def calculate_things_speed(all_draw_instructions, entity_tracker, current_frame=
     # Reconstruction de la liste avec mise à jour des entités suivies
     updated_draw = []
     for item in all_draw_instructions:
-        if "type" in types_to_track:
+        if item.get("type") in types_to_track:
             # Trouver correspondance la plus proche dans tracked_output
             best_match = None
             min_dist = float("inf")
@@ -140,7 +140,7 @@ def calculate_things_speed(all_draw_instructions, entity_tracker, current_frame=
 
     # Mise à jour spécifique pour "self" (joueur)
     for idx, item in enumerate(updated_draw):
-        if "type" == "self":
+        if item.get("type") == "self":
             x, y = item.get("position", (0, 0))
             prev_self = next((e for e in entity_tracker.prev_entities if e.get("type") == "self"), None)
             # Attention : ici dt = current_time - prev_last_update_time avant la mise à jour
@@ -168,80 +168,99 @@ def calculate_things_speed(all_draw_instructions, entity_tracker, current_frame=
 
     return updated_draw
 
-
-def estimate_background_speed(all_draw_instructions, prev_hsv, curr_hsv, smoothing_window=5, speed_history=None):
-    """
-    Calcule la vitesse de déplacement du fond entre deux images HSV,
-    retourne la vitesse en pixels par frame et ses composantes dx, dy.
-    Applique un lissage si speed_history est fourni.
-    """
-
-    if prev_hsv is None or curr_hsv is None:
-        return [{
+def default_bg_speed():
+    detections = []
+    detections.append ({
             "type": "background_speed",
             "speed": 0,
             "speed_dx": 0,
             "speed_dy": 0,
-            "draw": []
-        }], speed_history
+            # "draw": []
+        })
+    return detections
 
-    lower_gray = np.array([0, 0, 193])
-    upper_gray = np.array([180, 30, 203])  # élargir la plage HSV pour inclure plus de gris
+def estimate_background_speed(prev_hsv, curr_hsv, smoothing_window=5, speed_history=None):
+    """
+    Calcule la vitesse du fond entre deux frames HSV en isolant les lignes droites du quadrillage.
+    Retourne la vitesse (en px/frame), les composantes dx/dy et les instructions de dessin.
+    """
 
-    prev_mask = cv2.inRange(prev_hsv, lower_gray, upper_gray)
-    curr_mask = cv2.inRange(curr_hsv, lower_gray, upper_gray)
+    if prev_hsv is None or curr_hsv is None:
+    
+        detections = default_bg_speed()
+        return detections, speed_history
+
+
+    def extract_grid_mask(hsv_image):
+        lower_gray = np.array([0, 0, 193])
+        upper_gray = np.array([0, 0, 203])
+        mask = cv2.inRange(hsv_image, lower_gray, upper_gray)
+        # cv2.imshow("prev_mask", mask)
+
+
+        # # Nettoyage morphologique
+        # kernel = np.ones((1, 1), np.uint8)
+        # mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=5)
+        # cv2.imshow("mask_open", mask)
+        # mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=1)
+        # cv2.imshow("mask_close", mask)
+        scale = 0.5
+        small_mask = cv2.resize(mask, (0,0), fx=scale, fy=scale)
+        # Détection de bords et lignes
+        edges = cv2.Canny(small_mask, 50, 100)
+        lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=80, minLineLength=50, maxLineGap=75)
+
+        # Reconstruction du masque avec uniquement les lignes valides
+        line_mask_small = np.zeros_like(small_mask)
+        if lines is not None:
+            for line in lines:
+                x1, y1, x2, y2 = line[0]
+                angle = abs(np.arctan2(y2 - y1, x2 - x1)) * 180 / np.pi
+                if angle < 10 or angle > 80:  # Horizontale ou verticale
+                    cv2.line(line_mask_small, (x1, y1), (x2, y2), 255, 2)
+        # cv2.imshow("line_mask", line_mask)
+        line_mask = cv2.resize(line_mask_small, (mask.shape[1], mask.shape[0]))
+        return line_mask
+
+    # Construction des masques filtrés
+    prev_mask = extract_grid_mask(prev_hsv)
+    curr_mask = extract_grid_mask(curr_hsv)
+
 
     h, w = prev_mask.shape
-    win_size = 300
-    margin = 200
+    win_size = 150
+    margin = 50
     cx, cy = w // 2, h // 2
-
     x0 = cx - win_size // 2
     y0 = cy - win_size // 2
-
     x1 = max(0, x0 - margin)
     y1 = max(0, y0 - margin)
     x2 = min(w, x0 + win_size + margin)
     y2 = min(h, y0 + win_size + margin)
 
     if (y0 + win_size > h) or (x0 + win_size > w) or (y1 > h) or (x1 > w):
-        # Fenêtre hors limite : retour vitesse nulle
-        return [{
-            "type": "background_speed",
-            "speed": 0,
-            "speed_dx": 0,
-            "speed_dy": 0,
-            "draw": []
-        }], speed_history
+        detections = default_bg_speed()
+        return detections, speed_history
 
-    template = prev_mask[y0:y0+win_size, x0:x0+win_size]
+    template = prev_mask[y0:y0 + win_size, x0:x0 + win_size]
     search_area = curr_mask[y1:y2, x1:x2]
 
     if search_area.shape[0] < win_size or search_area.shape[1] < win_size:
-        return [{
-            "type": "background_speed",
-            "speed": 0,
-            "speed_dx": 0,
-            "speed_dy": 0,
-            "draw": []
-        }], speed_history
+        detections = default_bg_speed()
+        return detections, speed_history
 
     result = cv2.matchTemplate(search_area, template, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(result)
 
     if max_val < 0.8:
-        speed = 0
-        dx = 0
-        dy = 0
+        dx = dy = speed = 0
     else:
-        dx = (max_loc[0] - (x0 - x1))
-        dy = (max_loc[1] - (y0 - y1))
+        dx = max_loc[0] - (x0 - x1)
+        dy = max_loc[1] - (y0 - y1)
         speed = math.hypot(dx, dy)
 
-    # On inverse dx/dy car on cherche le mouvement du fond relatif à la caméra
-    dx, dy = -dx, -dy
+    dx, dy = -dx, -dy  # Inversé car déplacement du fond
 
-    # Lissage sur l'historique
     if speed_history is None:
         speed_history = []
     speed_history.append((dx, dy))
@@ -252,7 +271,8 @@ def estimate_background_speed(all_draw_instructions, prev_hsv, curr_hsv, smoothi
     avg_dy = sum([v[1] for v in speed_history]) / len(speed_history)
     avg_speed = math.hypot(avg_dx, avg_dy)
 
-    return {
+    detections =[]
+    detections.append({
         "type": "background_speed",
         "speed": avg_speed,
         "speed_dx": avg_dx,
@@ -263,4 +283,6 @@ def estimate_background_speed(all_draw_instructions, prev_hsv, curr_hsv, smoothi
             ("line", (cx, cy), (cx - int(avg_dx), cy - int(avg_dy)), (255, 0, 0), 2),
             ("text", (cx + int(avg_dx) + 5, cy + int(avg_dy) + 5), f"BG speed: {avg_speed:.2f} px", cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1)
         ]
-    }
+    })
+    return detections, speed_history
+

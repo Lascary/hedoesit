@@ -1,3 +1,5 @@
 capture => hsv = passe BGR à HSV (formats de couleur)
 Donc toutes les fonctions d'analyse d'image reçoivent le hsv pour traitement. Jamais capture
 
+width = 680
+height = 610

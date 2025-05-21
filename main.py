@@ -44,7 +44,7 @@ def actions_thread_loop():
             continue  # Timeout ou vide, on passe à la suite
 
 
-def detect_on_capture(prev_hsv,hsv, self_color):
+def detect_on_capture(prev_hsv,hsv, self_color, speed_history):
     all_draw_instructions = []
 
     # Nouvelle version : tuple (detections, self_color)
@@ -53,14 +53,17 @@ def detect_on_capture(prev_hsv,hsv, self_color):
 
     all_draw_instructions += passive_polygons_detector(hsv)
     all_draw_instructions += minimap_detector(hsv)
-    all_draw_instructions += estimate_background_speed(all_draw_instructions,prev_hsv, hsv)
 
-    return all_draw_instructions, new_self_color
+    new_draws, speed_history = estimate_background_speed(prev_hsv, hsv, speed_history=speed_history)
+    all_draw_instructions += new_draws
+    return all_draw_instructions, new_self_color, speed_history
 
 
 def analyse_things_detected(all_draw_instructions, capture_time, current_frame):
     global entity_tracker
-    return calculate_things_speed(all_draw_instructions, entity_tracker, current_frame, capture_time)
+   
+    all_draw_instructions += calculate_things_speed(all_draw_instructions, entity_tracker, current_frame, capture_time)
+    return all_draw_instructions
 
 
 
@@ -71,6 +74,7 @@ def run():
     prev_time = time.time()
     self_color = None
     prev_hsv = None
+    speed_history = []
     module_timings = {}  # Dictionnaire pour stocker les temps
 
     while True:
@@ -84,9 +88,9 @@ def run():
         module_timings["Capture+HSV"] = time.time() - capture_start
 
         # Détections sur l'image
-        all_draw_instructions, new_self_color = detect_on_capture(prev_hsv, hsv, self_color)
+        all_draw_instructions, new_self_color, speed_history = detect_on_capture(prev_hsv, hsv, self_color, speed_history)
         self_color = new_self_color
-
+        # print (all_draw_instructions)
         # Analyse des détections
         all_draw_instructions = analyse_things_detected(all_draw_instructions, capture_time, capture)
 
@@ -94,6 +98,7 @@ def run():
             instruction_queue.put_nowait(all_draw_instructions)
         except Full:
             pass
+        
 
         # Affichage image
         t0 = time.time()

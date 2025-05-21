@@ -1,5 +1,6 @@
 import time
 import pyautogui
+import keyboard
 
 
 CAPTURE_TOP = 114
@@ -39,8 +40,6 @@ def sort_key(target):
 def distance(p1, p2):
     return ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2) ** 0.5
 
-
-# déplacements
 def move_towards_target(target_position, threshold=30):
     global last_move_key_time, current_key_down
 
@@ -58,7 +57,7 @@ def move_towards_target(target_position, threshold=30):
     if dist < threshold:
         if current_key_down:
             for key in current_key_down:
-                pyautogui.keyUp(key)
+                keyboard.release(key)
             current_key_down = set()
         return
 
@@ -70,20 +69,63 @@ def move_towards_target(target_position, threshold=30):
         keys_to_press.add('s' if dy > 0 else 'z')
 
     if keys_to_press == current_key_down:
-        return  # Rien à changer, ne fait rien
+        return  # Rien à changer
 
     # Relâcher les touches non désirées
-    if current_key_down is None:
-        current_key_down = set()
     for key in current_key_down - keys_to_press:
-        pyautogui.keyUp(key)
+        keyboard.release(key)
 
     # Appuyer les nouvelles touches
     for key in keys_to_press - current_key_down:
-        pyautogui.keyDown(key)
+        keyboard.press(key)
 
     current_key_down = keys_to_press
     last_move_key_time = time.time()
+
+# # déplacements
+# def move_towards_target(target_position, threshold=30):
+#     global last_move_key_time, current_key_down
+
+#     if time.time() - last_move_key_time < 0.2:
+#         return
+
+#     cx, cy = center_x, center_y
+#     tx, ty = target_position
+
+#     dx = tx - cx
+#     dy = ty - cy
+#     dist = (dx**2 + dy**2)**0.5
+
+#     # Si proche de la cible, relâcher toutes les touches maintenues
+#     if dist < threshold:
+#         if current_key_down:
+#             for key in current_key_down:
+#                 pyautogui.keyUp(key)
+#             current_key_down = set()
+#         return
+
+#     # Déterminer quelles touches appuyer selon dx, dy
+#     keys_to_press = set()
+#     if abs(dx) > threshold:  # Se déplacer horizontalement si écart significatif
+#         keys_to_press.add('d' if dx > 0 else 'q')
+#     if abs(dy) > threshold:  # Se déplacer verticalement si écart significatif
+#         keys_to_press.add('s' if dy > 0 else 'z')
+
+#     if keys_to_press == current_key_down:
+#         return  # Rien à changer, ne fait rien
+
+#     # Relâcher les touches non désirées
+#     if current_key_down is None:
+#         current_key_down = set()
+#     for key in current_key_down - keys_to_press:
+#         pyautogui.keyUp(key)
+
+#     # Appuyer les nouvelles touches
+#     for key in keys_to_press - current_key_down:
+#         pyautogui.keyDown(key)
+
+#     current_key_down = keys_to_press
+#     last_move_key_time = time.time()
 
 
 

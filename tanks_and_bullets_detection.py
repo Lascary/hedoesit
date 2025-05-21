@@ -96,6 +96,7 @@ def annotate_detections(candidates, self_color, self_player):
 
         if c is self_player:
             label = "self"
+      
         elif color == self_color:
             label = f"ally_{raw_type}"
         else:
